@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace BatchFileWebAPI.Utility
 {
-    public class CustomHeaderSwaggerAttribute: IOperationFilter
+    public class CustomHeaderSwaggerAttribute : IOperationFilter
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
             if (operation.Parameters == null)
                 operation.Parameters = new List<OpenApiParameter>();
-            if(context.MethodInfo.Name=="AddFile")
+            if (context.MethodInfo.Name == "AddFile")
             {
                 operation.Parameters.Add(new OpenApiParameter
                 {

@@ -25,14 +25,14 @@ namespace BatchFileWebAPI
         {
             Configuration = configuration;
         }
-
+        
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers().AddNewtonsoftJson();
-            services.AddDbContext<BatchFileDBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DBConnection")));
+            services.AddDbContext<BatchFileDBContext>(options => options.UseSqlServer(Configuration["ConnectionStrings:DB"]));
             services.AddControllers();
             services.AddSwaggerGen(swagger =>
             {

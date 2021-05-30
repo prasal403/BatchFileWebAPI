@@ -12,6 +12,6 @@ namespace BatchFileWebAPI.IService
         BatchFile AddBatch(BatchFile batches);
         Task<BatchFile> GetBatchById(Guid batchid);
         Task<bool> AddFiles(string AccountName, string AccountKey, Guid ContainerName, string filename, int filesize, string mimeType);
-        Task<bool> CreateContainer(string AccountName, string AccountKey, string ContainerName);
+        //Task<bool> CreateContainer(string AccountName, string AccountKey, string ContainerName);
     }
 }

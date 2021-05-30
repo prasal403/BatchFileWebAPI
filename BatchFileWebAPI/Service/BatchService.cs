@@ -14,12 +14,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Text;
+using BatchFileWebAPI.Utility;
 
 namespace BatchFileWebAPI.Service
 {
     public class BatchService : IBatchService
     {
         private readonly BatchFileDBContext batchDBContext;
+        CommonUtility commonUtility = new CommonUtility();
         public BatchService(BatchFileDBContext _db)
         {
             batchDBContext = _db;
@@ -86,8 +88,8 @@ namespace BatchFileWebAPI.Service
             string filePath = path + ContainerName + "_" + filename;
             using (FileStream fs = System.IO.File.Create(filePath))
             { 
-                AddText(fs, "foo");
-                AddText(fs, "bar\tbaz");
+                commonUtility.AddText(fs, "foo");
+                commonUtility.AddText(fs, "bar\tbaz");
                 hashCode = MD5.Create().ComputeHash(fs);
             }
             using (FileStream fileStream =
@@ -119,7 +121,7 @@ namespace BatchFileWebAPI.Service
                     blockIDs.Add(blockId);
                     byte[] bytes = new byte[bytesToRead];
                     fileStream.Read(bytes, 0, bytesToRead);
-                    blockHash = GetMD5HashFromStream(bytes);
+                    blockHash = commonUtility.GetMD5HashFromStream(bytes);
                     await blockBlob.PutBlockAsync(blockId, new MemoryStream(bytes), blockHash);
                     bytesRead += bytesToRead;
                     bytesLeft -= bytesToRead;
@@ -138,35 +140,6 @@ namespace BatchFileWebAPI.Service
             }
             
         }
-        public void AddText(FileStream fs, string value)
-        {
-            byte[] info = new System.Text.UTF8Encoding(true).GetBytes(value);
-            fs.Write(info, 0, info.Length);
-        }
-
-        public async Task<bool> CreateContainer(string AccountName, string AccountKey, string ContainerName)
-        {
-            string UserConnectionString = string.Format("DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}", AccountName, AccountKey);
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(UserConnectionString);
-            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = blobClient.GetContainerReference(ContainerName.ToLower());
-            var containerData = await container.CreateIfNotExistsAsync();
-            if (containerData)
-            {
-                await container.SetPermissionsAsync(new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Blob });
-            }
-            return containerData;
-        }
-        public static string GetMD5HashFromStream(byte[] stream)
-        {
-            // Validate MD5 Value
-            var md5Check = System.Security.Cryptography.MD5.Create();
-            md5Check.TransformBlock(stream, 0, stream.Length, null, 0);
-            md5Check.TransformFinalBlock(new byte[0], 0, 0);
-
-            // Get Hash Value
-            byte[] hashBytes = md5Check.Hash;
-            return Convert.ToBase64String(hashBytes);
-        }
+       
     }
 }

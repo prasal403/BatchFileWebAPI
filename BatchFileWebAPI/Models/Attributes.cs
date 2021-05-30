@@ -13,10 +13,10 @@ namespace BatchFileWebAPI.Models
         [Key]
         [Newtonsoft.Json.JsonIgnore]
         public int AttributePkID { get; set; }
-        [Required]
+        
         [JsonProperty("key")]
         public string Key { get; set; }
-        [Required]
+        
         [JsonProperty("value")]
         public string Value { get; set; }
         [Required]

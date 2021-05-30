@@ -16,7 +16,7 @@ namespace BatchFileWebAPI.Models
         public Guid BatchId { get; set; }
         public string Status { get; set; }
         public DateTimeOffset BatchPublishedDate { get; set; }
-        [Required]
+        
         [JsonProperty("businessUnit")]
         public string BusinessUnit { get; set; }
 

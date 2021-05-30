@@ -6,6 +6,7 @@ using BatchFileWebAPI.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,7 @@ namespace BatchFileWebAPI.Controllers
         private readonly IBatchService batchService;
         private readonly ILoggerService logger;
         ModelValidation modelValidation = new ModelValidation();
+        CommonUtility commonUtility = new CommonUtility();
         public BatchController(IBatchService batch, ILoggerService loggerService, IConfiguration configurationService)
         {
             batchService = batch;
@@ -61,13 +63,25 @@ namespace BatchFileWebAPI.Controllers
                         return BadRequest(modelValidation.ValidateModel("400", "value is empty", "value should not be empty"));
                     }
                 }
-
+                
                 BatchFile newBatchObj = batchService.AddBatch(batch);
                 if (newBatchObj != null)
                 {
-                    var containerData = batchService.CreateContainer(configuration["storageAccountName"].ToString(), configuration["storageKey"].ToString(), newBatchObj.BatchId.ToString());
+                    var containerData = commonUtility.CreateContainer(configuration["storageAccountName"].ToString(), configuration["storageKey"].ToString(), newBatchObj.BatchId.ToString());
                 }
-                return Ok($"batchid:{newBatchObj.BatchId}");
+                var settings = new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    MissingMemberHandling = MissingMemberHandling.Ignore,
+                    DefaultValueHandling=DefaultValueHandling.Ignore
+                };
+                BatchFile batchFileGuid = new BatchFile
+                {
+                    BatchId = newBatchObj.BatchId
+                };
+                string responseBatchFile = JsonConvert.SerializeObject(batchFileGuid,Formatting.Indented,settings);
+                
+                return Ok(responseBatchFile);
             }
             catch (Exception ex)
             {
